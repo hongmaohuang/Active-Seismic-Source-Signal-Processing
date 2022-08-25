@@ -62,7 +62,7 @@ for i in range(len(list_source)):
         fig.patch.set_facecolor('white')
         for k in range(len(sta_list)):
             st_trim = obspy.read(sac_path + sta_list[k])
-            st_trim_filter = st_trim.filter('bandpass', freqmin=5.0, freqmax=50.0)
+            st_trim_filter = st_trim.filter('bandpass', freqmin=5.0, freqmax=15)
             hour = float(file_name_source[12] + file_name_source[13])
             mins = float(file_name_source[14] + file_name_source[15])
             sec = float(file_name_source[16] + file_name_source[17])
@@ -74,6 +74,7 @@ for i in range(len(list_source)):
             # ===================
             tr = st_trim_filter[0]
             cc = correlate(tr, tr_hypof, 800)
+            #cc = correlate(tr_hypof, tr, 800)
             x_cc = range(0, len(cc))
             y_cc = cc
             # ==========================================
@@ -90,17 +91,19 @@ for i in range(len(list_source)):
             dist = 2*math.pi*6378137*dist_deg/360
             if seis_locations.Inst[num_this_sta] == "GP":
                 plot_gp = plt.plot(np.linspace(0, len(x_cc)/100, num=1601)-8, (y_cc/max(y_cc)*100)+dist, 'k', linewidth=0.8)
-                plt.text(8.1, np.mean((y_cc/max(y_cc))*100+dist), str(sta_list[k][:4])+"(GP)", color='k', fontsize=8)
+                plt.text(8.1, np.mean((y_cc/max(y_cc))*100+dist), str(sta_list[k][:4])+"(GP)", color='k', fontsize=15)
             else:
                 plot_bb = plt.plot(np.linspace(0, len(x_cc)/100, num=1601)-8, (y_cc/max(y_cc)*100)+dist, 'r', linewidth=0.8)
-                plt.text(8.5, np.mean((y_cc/max(y_cc))*100+dist), str(sta_list[k][:4])+"(BB)", color='r', fontsize=8)
+                plt.text(8.5, np.mean((y_cc/max(y_cc))*100+dist), str(sta_list[k][:4])+"(BB)", color='r', fontsize=15)
             # ==========================
             # Parameter for making plot
             # ==========================
-            plt.xlabel('Sec.')
-            plt.ylabel('Dist.')
-            plt.xlim(0,8)
-            plt.title("source: " + source_shock[0:3] + " - " + str(num_shock), fontweight='bold', fontsize=20)
+            plt.xlabel('Time [sec]', fontsize = 20)
+            plt.ylabel('Distance [m]', fontsize = 20)
+            plt.xlim(-4,8)
+            plt.xticks(fontsize=15)
+            plt.yticks(fontsize=15)
+            plt.title("source: " + source_shock[0:3] + " - " + str(num_shock), fontweight='bold', fontsize=35)
             plt.rcParams['font.sans-serif'] = 'Times New Roman'
             #plt.show()
             saveimage_path = path_all + "Output" + "\\" + source_shock[0:3] 

@@ -23,20 +23,20 @@ from obspy.signal.cross_correlation import correlate
 os.system('cls')
 # Input
 
-'''
-file_path = 'C:\\HM\\Chulin_Processing\\Data\\Pilot_segy\\' + "015" + "\\"
-file_name = "8056_220324_051221.sgy"
-num_shock = "10"
-sac_path = "C:\HM\Chulin_Processing\Data\sac" + "\\"
-Station_name = "CL07" + ".HHZ" + ".SAC"
-'''
 
+file_path = 'C:\\HM\\Chulin_Processing\\Data\\Pilot_segy\\' + "030" + "\\"
+file_name = "8056_220324_075621.sgy"
+num_shock = "13"
+sac_path = "C:\HM\Chulin_Processing\Data\sac" + "\\"
+Station_name = "CL17" + ".HHZ" + ".SAC"
+
+'''
 file_path = input("Please enter the path of the source function file:") + "\\"
 file_name = input("Please enter the name of the source function file:")
 num_shock = input("Please enter the number of the shock:")
 sac_path = input("Please enter the path of the SAC file:") + "\\"
 Station_name = input("Please enter the station name:") + ".HHZ" + ".SAC"
-   
+''' 
 
 # 震源函數轉檔
 segy = _read_segy(file_path + file_name)
@@ -60,12 +60,14 @@ st_trim_for_check_filter = st_trim_for_check.filter('bandpass', freqmin=5.0, fre
 hour = float(file_name[12] + file_name[13])
 mins = float(file_name[14] + file_name[15])
 sec = float(file_name[16] + file_name[17])
+st[0].stats.starttime = st[0].stats.starttime
 starttime = st[0].stats.starttime + hour*60*60 + mins*60 + sec - 5*60
 endtime = st[0].stats.starttime + hour*60*60 + mins*60 + sec + 5*60
 st_trim_for_check_filter.trim(starttime=starttime, endtime=endtime)
 
 # 切SAC分析
 st_trim = st.copy()
+# %%
 st_trim_filter = st_trim.filter('bandpass', freqmin=5.0, freqmax=50.0)
 starttime = st[0].stats.starttime + hour*60*60 + mins*60 + sec
 endtime = st[0].stats.starttime + hour*60*60 + mins*60 + sec + 8 - 0.01
@@ -73,7 +75,7 @@ st_trim_filter.trim(starttime=starttime, endtime=endtime)
 st_trim_filter_y = st_trim_filter[0].data
 
 # correlation
-cc = correlate(st_trim_filter[0], tr_hypof, 800)
+cc = correlate(st_trim_filter[0], tr_hypof,  800)
 x_cc = range(0, len(cc))
 y_cc = cc
 tr_y_cc = Trace(np.array(y_cc))
@@ -91,10 +93,10 @@ ax1 = plt.subplot2grid((7,1), (0,0), rowspan=1)
 ax1.plot(st_trim_for_check_filter[0].times(), st_trim_for_check_filter[0].data, 'k')
 min_ylabel = min(st_trim_for_check_filter[0].data)
 max_ylabel = max(st_trim_for_check_filter[0].data)
-ax1.plot([300, 300], [min_ylabel, max_ylabel], color="red")
-ax1.plot([300, 308], [min_ylabel, min_ylabel], color="red")
-ax1.plot([300, 308], [max_ylabel, max_ylabel], color="red")
-ax1.plot([308, 308], [min_ylabel, max_ylabel], color="red")
+ax1.plot([300, 300], [min_ylabel, max_ylabel], color="red", linestyle='dashed')
+ax1.plot([300, 308], [min_ylabel, min_ylabel], color="red", linestyle='dashed')
+ax1.plot([300, 308], [max_ylabel, max_ylabel], color="red", linestyle='dashed')
+ax1.plot([308, 308], [min_ylabel, max_ylabel], color="red", linestyle='dashed')
 ax1.set_xlim(0, 600)
 #ax1.legend()
 ax1.title.set_text('Original Waveform for 10 min')
@@ -121,13 +123,13 @@ ax4.plot((np.linspace(0, len(x_cc)/100, num=1601))-8, y_cc, 'k')
 ax4.title.set_text('Cross-Correlation')
 min_ylabel = min(y_cc)
 max_ylabel = max(y_cc)
-ax4.set_xlim(0,8)
+ax4.set_xlim(-2,8)
 #Correlation後
 
 plt.subplots_adjust(hspace=hspace)
 ax5 = plt.subplot2grid((7,1),(4,0), rowspan=3, colspan=1)
 ax5.specgram(tr_y_cc, Fs=100, cmap='jet', NFFT=nfft, noverlap=noverlap, scale='dB', xextent=(-8,8))
-ax5.set_xlim(0,8)
+ax5.set_xlim(-2,8)
 cbar_x = ax5.get_position().x1 + 0.01 
 cbar_y = ax5.get_position().y0
 cbar_h = ax5.get_position().height
